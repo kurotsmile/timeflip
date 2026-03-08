@@ -160,14 +160,53 @@ canvas, img.preview, svg {
   main, header { padding: 16px; }
 }</style>
   <script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"TimeFlip","description":"Convert date and time between world timezones quickly and accurately.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","url":"https://timeflip.web.app"}</script>
+<style id="round2-style">
+body.theme-shell::before, body.theme-shell::after {
+  content:"";
+  position:fixed;
+  z-index:-1;
+  width:320px;
+  height:320px;
+  border-radius:54% 46% 44% 56% / 33% 52% 48% 67%;
+  background:linear-gradient(120deg, #0061ff22, #c061ff22);
+  filter: blur(1px);
+}
+body.theme-shell::before { top:-90px; right:-90px; }
+body.theme-shell::after { bottom:-110px; left:-110px; }
+.tool-ribbon {
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:10px 12px;
+  margin:0 0 12px;
+  border:1px solid color-mix(in srgb, #0061ff 32%, #ffffff);
+  background:linear-gradient(120deg, #0061ff14, #c061ff10);
+  border-radius:12px;
+  font-weight:700;
+  letter-spacing:.2px;
+}
+.ribbon-ic {
+  width:18px;
+  height:18px;
+  stroke:color-mix(in srgb, #0061ff 65%, #102030);
+  fill:none;
+  stroke-width:1.9;
+}
+header h1 { position: relative; z-index: 1; }
+header .sub { position: relative; z-index: 1; }
+main { position: relative; overflow: visible; }
+button { min-height: 42px; }
+.theme-shell main{background:linear-gradient(180deg,#fff, #fbfdff)}.theme-shell .tool-ribbon{box-shadow:0 10px 20px rgba(0,0,0,.08)}
+</style>
 </head>
-<body>
+<body class="theme-shell">
   <div class="container">
     <header>
       <h1>Timezone Converter</h1>
       <p class="sub">Convert date and time between world timezones quickly and accurately.</p>
     </header>
     <main>
+      <div class="tool-ribbon"><svg viewBox="0 0 24 24" class="ribbon-ic"><circle cx="12" cy="12" r="9"/><path d="M12 7v6l4 2"/></svg><span>Global Time Lab</span></div>
       <div class="grid two"><div><label>Date & Time</label><input id="dt" type="datetime-local"></div><div><label>From Timezone</label><select id="fromTz"></select></div></div>
     <div class="grid two" style="margin-top:10px"><div><label>To Timezone</label><select id="toTz"></select></div><div><label>&nbsp;</label><button id="conv">Convert</button></div></div>
     <div class="output" style="margin-top:10px"><strong>Result:</strong> <span id="res"></span></div>
