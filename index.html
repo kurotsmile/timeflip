@@ -1,69 +1,1037 @@
-<!doctype html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>TimeFlip | Timezone Converter</title><meta name="description" content="Convert date and time between world timezones quickly and accurately."><meta name="keywords" content="timezone converter,time zone calculator,world clock converter"><meta name="author" content="Tran Thien Thanh"><meta name="robots" content="index,follow,max-image-preview:large"><meta property="og:type" content="website"><meta property="og:title" content="TimeFlip - Timezone Converter"><meta property="og:description" content="Convert date and time between world timezones quickly and accurately."><meta property="og:url" content="https://timeflip.web.app"><meta property="og:image" content="https://timeflip.web.app/favicon.svg"><meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="TimeFlip - Timezone Converter"><meta name="twitter:description" content="Convert date and time between world timezones quickly and accurately."><link rel="canonical" href="https://timeflip.web.app/"><link rel="icon" type="image/svg+xml" href="favicon.svg"><style>:root{--w:1160px;--r:22px;--font:"Lucida Sans","Segoe UI",sans-serif;--bg:linear-gradient(145deg,#edf2ff,#fff1fb);--card:#ffffffdd;--text:#1e2f57;--muted:#5d6f94;--line:#d7def4;--g1:#3f6bff;--g2:#c94fff;--shadow:0 16px 36px rgba(40,59,99,.14)}
-*{box-sizing:border-box}
-body{margin:0;color:var(--text);font-family:var(--font);background:var(--bg)}
-.page{max-width:var(--w);margin:0 auto;padding:24px 16px 36px}
-.tool-shell{background:var(--card);border:1px solid var(--line);border-radius:var(--r);padding:18px;box-shadow:var(--shadow)}
-label{display:block;margin-bottom:6px;font-weight:700}
-input,select,textarea,button{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:10px;font:inherit}
-textarea{min-height:130px;resize:vertical}
-button{display:inline-flex;align-items:center;justify-content:center;gap:8px;border:none;background:linear-gradient(125deg,var(--g1),var(--g2));color:#fff;font-weight:700;cursor:pointer}
-button:hover{filter:brightness(1.05)}
-.btn-ic{width:14px;height:14px;stroke:currentColor;stroke-width:2;fill:none}
-.grid{display:grid;gap:12px}
-.grid.two{grid-template-columns:repeat(auto-fit,minmax(230px,1fr))}
-.output,.panel{border:1px solid var(--line);border-radius:12px;padding:12px;background:#fff}
-canvas,img.preview,svg{max-width:100%;border-radius:12px;border:1px solid var(--line);background:#fff}
-.swatches{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:10px}
-.swatch{border:1px solid var(--line);border-radius:12px;overflow:hidden;cursor:pointer}
-.swatch div{height:68px}
-.swatch code{display:block;text-align:center;padding:8px;background:#fff}
-.note{color:var(--muted)}
-.site-footer{margin-top:20px;background:#10243a;color:#dce8f8;border:1px solid #1e3e61;border-radius:14px;padding:16px;display:grid;gap:10px;grid-template-columns:repeat(auto-fit,minmax(250px,1fr))}
-.site-footer h3{margin:0 0 8px;color:#fff}
-.site-footer p{margin:5px 0;word-break:break-word}
-.site-footer a{color:#92cfff}
-@media (max-width:720px){.page{padding:14px 10px 24px}.tool-shell{padding:14px}}
-.hero{background:linear-gradient(130deg,#ffffffde,#f7fbffde);backdrop-filter:blur(4px);border:1px solid var(--line);border-radius:var(--r);padding:18px}.tool-shell{background:#ffffffeb}</style><script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"TimeFlip","description":"Convert date and time between world timezones quickly and accurately.","applicationCategory":"UtilitiesApplication","operatingSystem":"Any","url":"https://timeflip.web.app"}</script></head><body><div class="page"><section class="hero"><h1>Timezone Converter</h1><p>Convert date and time between world timezones quickly and accurately.</p></section><section class="tool-shell"><div class="grid two"><div><label>Date & Time</label><input id="dt" type="datetime-local"></div><div><label>From Timezone</label><select id="fromTz"></select></div></div><div class="grid two" style="margin-top:10px"><div><label>To Timezone</label><select id="toTz"></select></div><div><label>&nbsp;</label><button id="conv">Convert</button></div></div><div class="output" style="margin-top:10px"><strong>Result:</strong> <span id="res"></span></div></section>
-<footer class="site-footer">
-  <div>
-    <h3>Contact</h3>
-    <p>Email: <a href="mailto:tranthienthanh93@gmail.com">tranthienthanh93@gmail.com</a></p>
-    <p>Web: <a href="https://carrotstore.web.app" target="_blank" rel="noopener">carrotstore.web.app</a></p>
-    <p>Phone: <a href="tel:+84978651577">+84978651577</a></p>
-    <p>Tiktok: <a href="https://www.tiktok.com/@kurotsmilethanh" target="_blank" rel="noopener">@kurotsmilethanh</a></p>
-  </div>
-  <div>
-    <h3>Donation</h3>
-    <p>PayPal: <a href="https://www.paypal.com/paypalme/kurotsmile" target="_blank" rel="noopener">https://www.paypal.com/paypalme/kurotsmile</a></p>
-    <p>Buy us a Coffee on Ko-fi: <a href="https://ko-fi.com/T6T210E258" target="_blank" rel="noopener">https://ko-fi.com/T6T210E258</a></p>
-  </div>
-</footer></div><script>const tzs=(Intl.supportedValuesOf?Intl.supportedValuesOf('timeZone'):['UTC','Asia/Ho_Chi_Minh','America/New_York','Europe/London']); const from=document.getElementById('fromTz'),to=document.getElementById('toTz'); from.innerHTML=tzs.map(t=>'<option>'+t+'</option>').join(''); to.innerHTML=from.innerHTML; from.value=Intl.DateTimeFormat().resolvedOptions().timeZone; to.value='UTC'; document.getElementById('dt').value=new Date(Date.now()-new Date().getTimezoneOffset()*60000).toISOString().slice(0,16); function convert(){ const input=document.getElementById('dt').value; if(!input) return; const d=new Date(input); const fmt=new Intl.DateTimeFormat('en-US',{timeZone:to.value,year:'numeric',month:'short',day:'2-digit',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false,timeZoneName:'short'}); document.getElementById('res').textContent=fmt.format(d);} document.getElementById('conv').onclick=convert; convert();</script><script>(function(){
-  const icons = {
-    make:'<svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 5v14M5 12h14"/></svg>',
-    download:'<svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v12"/><path d="M7 10l5 5 5-5"/><path d="M4 21h16"/></svg>',
-    convert:'<svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7h13"/><path d="M13 3l4 4-4 4"/><path d="M20 17H7"/><path d="M11 13l-4 4 4 4"/></svg>',
-    apply:'<svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M20 6L9 17l-5-5"/></svg>',
-    copy:'<svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="9" width="11" height="11" rx="2"/><rect x="4" y="4" width="11" height="11" rx="2"/></svg>',
-    random:'<svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M16 3h5v5"/><path d="M4 20L21 3"/><path d="M16 21h5v-5"/><path d="M4 4l7 7"/></svg>',
-    start:'<svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg>',
-    scan:'<svg class="btn-ic" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 7V4h3M20 7V4h-3M4 17v3h3M20 17v3h-3"/><rect x="7" y="7" width="10" height="10" rx="2"/></svg>'
-  };
-  const choose = (txt) => {
-    const t = txt.toLowerCase();
-    if (t.includes('download') || t.includes('save')) return icons.download;
-    if (t.includes('convert')) return icons.convert;
-    if (t.includes('apply') || t.includes('enhance') || t.includes('detect')) return icons.apply;
-    if (t.includes('copy') || t.includes('extract')) return icons.copy;
-    if (t.includes('random')) return icons.random;
-    if (t.includes('start')) return icons.start;
-    if (t.includes('scan')) return icons.scan;
-    if (t.includes('generate') || t.includes('create') || t.includes('build') || t.includes('update')) return icons.make;
-    return icons.make;
-  };
-  document.querySelectorAll('button').forEach((btn) => {
-    const text = btn.textContent.trim();
-    if (!text || btn.dataset.iconized === '1') return;
-    btn.innerHTML = choose(text) + '<span>' + text + '</span>';
-    btn.dataset.iconized = '1';
-  });
-})();</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TimeFlip | Neon Timezone Converter</title>
+  <meta name="description" content="Neon-styled timezone converter with world clock, timezone offset calculator, and quick meeting planner.">
+  <meta name="keywords" content="timezone converter, world clock, time difference, meeting planner, neon ui">
+  <meta name="author" content="Tran Thien Thanh">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="TimeFlip | Neon Timezone Converter">
+  <meta property="og:description" content="Convert timezones, compare cities, and plan meetings in a neon cyber interface.">
+  <meta property="og:url" content="https://timeflip.web.app">
+  <meta property="og:image" content="https://timeflip.web.app/favicon.svg">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="TimeFlip | Neon Timezone Converter">
+  <meta name="twitter:description" content="Convert timezones, compare cities, and plan meetings in a neon cyber interface.">
+  <meta name="google-site-verification" content="jv-rBXrSE1vKCdBI3TmwRXa0zNd0LO3EFGUj7a6_AJo" />
+  <link rel="canonical" href="https://timeflip.web.app/">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script>(function(s){s.dataset.zone='10726905',s.src='https://nap5k.com/tag.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+  <script>(function(s){s.dataset.zone='10726941',s.src='https://gizokraijaw.net/vignette.min.js'})([document.documentElement, document.body].filter(Boolean).pop().appendChild(document.createElement('script')))</script>
+  <style>
+    :root{
+      --bg:#050816;
+      --bg-2:#0d1431;
+      --panel:rgba(8,14,34,.76);
+      --panel-solid:#0b1228;
+      --line:rgba(113,171,255,.3);
+      --line-strong:rgba(97,247,255,.55);
+      --text:#ecf4ff;
+      --muted:#8ea5d9;
+      --pink:#ff4fd8;
+      --cyan:#5cf6ff;
+      --blue:#5a7dff;
+      --lime:#8effa2;
+      --warning:#ffd86a;
+      --shadow:0 24px 80px rgba(0,0,0,.45);
+      --glow:0 0 24px rgba(92,246,255,.35),0 0 60px rgba(90,125,255,.18);
+      --radius:24px;
+      --font:"Segoe UI","Trebuchet MS",sans-serif;
+      --mono:"Consolas","Courier New",monospace;
+      --w:1240px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      min-height:100vh;
+      color:var(--text);
+      font-family:var(--font);
+      background:
+        radial-gradient(circle at top left, rgba(255,79,216,.18), transparent 28%),
+        radial-gradient(circle at top right, rgba(92,246,255,.14), transparent 24%),
+        radial-gradient(circle at 50% 120%, rgba(90,125,255,.18), transparent 34%),
+        linear-gradient(160deg, var(--bg), #040612 45%, var(--bg-2));
+      overflow-x:hidden;
+    }
+    body::before,
+    body::after{
+      content:"";
+      position:fixed;
+      inset:auto;
+      pointer-events:none;
+      z-index:0;
+    }
+    body::before{
+      width:42vmax;
+      height:42vmax;
+      top:-16vmax;
+      right:-10vmax;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,79,216,.18), transparent 60%);
+      filter:blur(18px);
+    }
+    body::after{
+      width:40vmax;
+      height:40vmax;
+      bottom:-18vmax;
+      left:-10vmax;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(92,246,255,.16), transparent 58%);
+      filter:blur(24px);
+    }
+    .grid-overlay{
+      position:fixed;
+      inset:0;
+      background-image:
+        linear-gradient(rgba(255,255,255,.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255,255,255,.04) 1px, transparent 1px);
+      background-size:34px 34px;
+      mask-image:linear-gradient(to bottom, rgba(0,0,0,.5), transparent 88%);
+      pointer-events:none;
+      z-index:0;
+    }
+    .page{
+      position:relative;
+      z-index:1;
+      max-width:var(--w);
+      margin:0 auto;
+      padding:28px 16px 40px;
+    }
+    .hero{
+      position:relative;
+      overflow:hidden;
+      padding:28px;
+      margin-bottom:20px;
+      border:1px solid var(--line);
+      border-radius:30px;
+      background:linear-gradient(145deg, rgba(12,19,46,.88), rgba(7,10,22,.88));
+      box-shadow:var(--shadow);
+    }
+    .hero::after{
+      content:"";
+      position:absolute;
+      inset:0;
+      background:
+        linear-gradient(120deg, rgba(92,246,255,.08), transparent 24%, rgba(255,79,216,.08) 70%, transparent 100%);
+      pointer-events:none;
+    }
+    .badge{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:7px 12px;
+      border-radius:999px;
+      border:1px solid rgba(92,246,255,.35);
+      background:rgba(92,246,255,.08);
+      color:var(--cyan);
+      font-size:.78rem;
+      font-weight:700;
+      letter-spacing:.14em;
+      text-transform:uppercase;
+    }
+    .hero-grid{
+      display:grid;
+      gap:20px;
+      grid-template-columns:minmax(0,1.5fr) minmax(320px,.9fr);
+      align-items:end;
+    }
+    h1{
+      margin:14px 0 10px;
+      font-size:clamp(2.4rem,5vw,4.8rem);
+      line-height:.95;
+      letter-spacing:.04em;
+      text-transform:uppercase;
+      text-shadow:0 0 18px rgba(92,246,255,.28), 0 0 36px rgba(255,79,216,.15);
+    }
+    .hero p{
+      margin:0;
+      max-width:760px;
+      color:#d2defa;
+      font-size:1.05rem;
+      line-height:1.7;
+    }
+    .hero-stats{
+      display:grid;
+      gap:12px;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .stat{
+      padding:16px;
+      border:1px solid rgba(113,171,255,.24);
+      border-radius:20px;
+      background:rgba(4,10,24,.72);
+      box-shadow:var(--glow);
+    }
+    .stat-label{
+      display:block;
+      color:var(--muted);
+      font-size:.8rem;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+    .stat strong{
+      display:block;
+      margin-top:8px;
+      font-size:1.3rem;
+      font-family:var(--mono);
+    }
+    .layout{
+      display:grid;
+      gap:18px;
+      grid-template-columns:minmax(0,1.4fr) minmax(320px,.8fr);
+    }
+    .panel{
+      border:1px solid var(--line);
+      border-radius:var(--radius);
+      background:linear-gradient(180deg, rgba(12,18,42,.8), rgba(8,12,28,.88));
+      box-shadow:var(--shadow);
+      backdrop-filter:blur(16px);
+    }
+    .panel-inner{padding:22px}
+    .panel-title{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      margin-bottom:18px;
+    }
+    .panel-title h2,
+    .panel-title h3{
+      margin:0;
+      font-size:1rem;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .subtle{
+      color:var(--muted);
+      font-size:.92rem;
+    }
+    .form-grid,
+    .metrics,
+    .meeting-grid,
+    .clock-list,
+    .presets{
+      display:grid;
+      gap:14px;
+    }
+    .form-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .metrics{grid-template-columns:repeat(3,minmax(0,1fr)); margin-top:16px}
+    .meeting-grid{grid-template-columns:repeat(3,minmax(0,1fr))}
+    .clock-list{margin-top:16px}
+    .presets{grid-template-columns:repeat(2,minmax(0,1fr)); margin-top:16px}
+    label{
+      display:block;
+      margin-bottom:8px;
+      color:#cddaff;
+      font-size:.9rem;
+      font-weight:700;
+      letter-spacing:.06em;
+      text-transform:uppercase;
+    }
+    input,select,button{
+      width:100%;
+      border-radius:16px;
+      font:inherit;
+    }
+    input,select{
+      border:1px solid rgba(113,171,255,.28);
+      padding:13px 14px;
+      color:var(--text);
+      background:rgba(4,10,24,.9);
+      outline:none;
+      transition:border-color .2s ease, box-shadow .2s ease, transform .2s ease;
+    }
+    input:focus,select:focus{
+      border-color:var(--line-strong);
+      box-shadow:0 0 0 3px rgba(92,246,255,.12),0 0 24px rgba(92,246,255,.12);
+      transform:translateY(-1px);
+    }
+    button{
+      border:1px solid transparent;
+      padding:13px 16px;
+      color:#f7fbff;
+      font-weight:800;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      cursor:pointer;
+      transition:transform .18s ease, box-shadow .18s ease, filter .18s ease, border-color .18s ease;
+    }
+    button:hover{
+      transform:translateY(-2px);
+      filter:brightness(1.05);
+    }
+    .btn-primary{
+      background:linear-gradient(120deg, rgba(92,246,255,.25), rgba(90,125,255,.4), rgba(255,79,216,.25));
+      border-color:rgba(92,246,255,.28);
+      box-shadow:0 0 18px rgba(92,246,255,.18), 0 0 32px rgba(255,79,216,.12);
+    }
+    .btn-secondary{
+      background:rgba(255,255,255,.04);
+      border-color:rgba(113,171,255,.28);
+    }
+    .btn-ghost{
+      background:transparent;
+      border-color:rgba(142,165,217,.22);
+      color:var(--muted);
+    }
+    .actions{
+      display:grid;
+      gap:10px;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      margin-top:16px;
+    }
+    .result-card{
+      position:relative;
+      overflow:hidden;
+      margin-top:18px;
+      padding:20px;
+      border:1px solid rgba(92,246,255,.22);
+      border-radius:22px;
+      background:linear-gradient(145deg, rgba(4,11,30,.95), rgba(10,18,44,.78));
+      box-shadow:var(--glow);
+    }
+    .result-card::before{
+      content:"";
+      position:absolute;
+      inset:-20% auto auto 55%;
+      width:220px;
+      height:220px;
+      border-radius:50%;
+      background:radial-gradient(circle, rgba(255,79,216,.22), transparent 66%);
+      pointer-events:none;
+    }
+    .result-top{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      margin-bottom:18px;
+    }
+    .result-status{
+      display:inline-flex;
+      align-items:center;
+      gap:8px;
+      padding:6px 12px;
+      border-radius:999px;
+      background:rgba(142,255,162,.1);
+      color:var(--lime);
+      border:1px solid rgba(142,255,162,.24);
+      font-size:.78rem;
+      font-weight:700;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+    .result-time{
+      font-size:clamp(2rem,4vw,3.2rem);
+      line-height:1;
+      font-weight:900;
+      letter-spacing:.05em;
+      text-transform:uppercase;
+      text-shadow:0 0 20px rgba(92,246,255,.2);
+    }
+    .result-meta{
+      color:var(--muted);
+      line-height:1.7;
+      font-size:.95rem;
+    }
+    .metric,
+    .meeting-slot,
+    .clock-card,
+    .preset-btn{
+      border:1px solid rgba(113,171,255,.24);
+      border-radius:18px;
+      background:rgba(6,12,30,.82);
+    }
+    .metric{
+      padding:16px;
+      min-height:116px;
+    }
+    .metric span,
+    .meeting-slot span,
+    .clock-card span{
+      display:block;
+      color:var(--muted);
+      font-size:.78rem;
+      text-transform:uppercase;
+      letter-spacing:.12em;
+    }
+    .metric strong,
+    .meeting-slot strong,
+    .clock-card strong{
+      display:block;
+      margin-top:10px;
+      font-size:1.08rem;
+      line-height:1.35;
+    }
+    .meeting-slot{
+      padding:15px;
+      box-shadow:inset 0 0 0 1px rgba(92,246,255,.04);
+    }
+    .meeting-slot small{
+      display:block;
+      margin-top:10px;
+      color:#bfd1ff;
+      font-family:var(--mono);
+      font-size:.86rem;
+    }
+    .clock-card{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:16px 18px;
+    }
+    .clock-card strong{
+      margin-top:6px;
+      font-size:1rem;
+    }
+    .clock-time{
+      font-family:var(--mono);
+      font-size:1.15rem;
+      color:var(--cyan);
+      text-shadow:0 0 14px rgba(92,246,255,.2);
+      white-space:nowrap;
+    }
+    .preset-btn{
+      padding:14px 16px;
+      text-align:left;
+      background:linear-gradient(180deg, rgba(255,255,255,.03), rgba(255,255,255,.01));
+    }
+    .preset-btn b{
+      display:block;
+      font-size:.98rem;
+      color:var(--text);
+    }
+    .preset-btn span{
+      display:block;
+      margin-top:6px;
+      color:var(--muted);
+      font-size:.84rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .footer{
+      margin-top:18px;
+      padding:20px 22px;
+      border:1px solid var(--line);
+      border-radius:22px;
+      background:rgba(4,10,24,.82);
+      display:grid;
+      gap:18px;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+    }
+    .footer h3{
+      margin:0 0 10px;
+      font-size:.95rem;
+      letter-spacing:.12em;
+      text-transform:uppercase;
+    }
+    .footer p{
+      margin:6px 0;
+      color:#d9e5ff;
+      word-break:break-word;
+    }
+    .footer a{color:var(--cyan)}
+    .accent{
+      color:var(--cyan);
+      text-shadow:0 0 18px rgba(92,246,255,.18);
+    }
+    .microcopy{
+      margin-top:14px;
+      color:var(--muted);
+      font-size:.9rem;
+      line-height:1.7;
+    }
+    .toast{
+      position:fixed;
+      right:18px;
+      bottom:18px;
+      padding:12px 16px;
+      border-radius:14px;
+      background:rgba(8,14,34,.95);
+      border:1px solid rgba(92,246,255,.35);
+      box-shadow:var(--glow);
+      color:var(--text);
+      opacity:0;
+      transform:translateY(8px);
+      pointer-events:none;
+      transition:opacity .2s ease, transform .2s ease;
+      z-index:10;
+    }
+    .toast.show{
+      opacity:1;
+      transform:translateY(0);
+    }
+    @media (max-width:980px){
+      .hero-grid,
+      .layout{grid-template-columns:1fr}
+    }
+    @media (max-width:760px){
+      .page{padding:14px 10px 26px}
+      .hero,
+      .panel-inner,
+      .footer{padding:16px}
+      .form-grid,
+      .metrics,
+      .meeting-grid,
+      .actions,
+      .presets,
+      .hero-stats,
+      .footer{grid-template-columns:1fr}
+      .result-top,
+      .clock-card{display:block}
+      .clock-time{margin-top:12px}
+    }
+  </style>
+  <script type="application/ld+json">
+    {
+      "@context":"https://schema.org",
+      "@type":"WebApplication",
+      "name":"TimeFlip",
+      "description":"Neon-styled timezone converter with world clock, timezone offset calculator, and quick meeting planner.",
+      "applicationCategory":"UtilitiesApplication",
+      "operatingSystem":"Any",
+      "url":"https://timeflip.web.app"
+    }
+  </script>
+</head>
+<body>
+  <div class="grid-overlay" aria-hidden="true"></div>
+  <main class="page">
+    <section class="hero">
+      <div class="hero-grid">
+        <div>
+          <div class="badge">Neon Sync Matrix</div>
+          <h1>TimeFlip</h1>
+          <p>Convert timezones, compare offsets, and line up remote meetings with a sharper neon dashboard. Built as a fast client-side tool with live clocks and one-click sharing.</p>
+        </div>
+        <div class="hero-stats">
+          <div class="stat">
+            <span class="stat-label">Detected Zone</span>
+            <strong id="heroLocalZone">-</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">UTC Offset</span>
+            <strong id="heroLocalOffset">-</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Compared Zones</span>
+            <strong id="heroZoneCount">0 / 0</strong>
+          </div>
+          <div class="stat">
+            <span class="stat-label">Live Delta</span>
+            <strong id="heroDelta">-</strong>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="layout">
+      <div class="panel">
+        <div class="panel-inner">
+          <div class="panel-title">
+            <div>
+              <h2>Conversion Core</h2>
+              <div class="subtle">Two-way timezone conversion with extra context.</div>
+            </div>
+          </div>
+
+          <div class="form-grid">
+            <div>
+              <label for="dt">Date & Time</label>
+              <input id="dt" type="datetime-local">
+            </div>
+            <div>
+              <label for="meetingDate">Meeting Date</label>
+              <input id="meetingDate" type="date">
+            </div>
+            <div>
+              <label for="fromTz">From Timezone</label>
+              <select id="fromTz"></select>
+            </div>
+            <div>
+              <label for="toTz">To Timezone</label>
+              <select id="toTz"></select>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn-primary" id="conv">Convert</button>
+            <button class="btn-secondary" id="swapBtn">Swap</button>
+            <button class="btn-secondary" id="nowBtn">Now</button>
+            <button class="btn-ghost" id="copyBtn">Copy Result</button>
+          </div>
+
+          <article class="result-card">
+            <div class="result-top">
+              <div>
+                <div class="result-status" id="statusText">Live conversion ready</div>
+                <div class="result-time" id="primaryResult">--</div>
+              </div>
+              <div class="result-meta" id="secondaryResult">Pick a date and timezone pair to begin.</div>
+            </div>
+            <div class="metrics">
+              <div class="metric">
+                <span>Timezone Difference</span>
+                <strong id="differenceOutput">--</strong>
+              </div>
+              <div class="metric">
+                <span>Day Shift</span>
+                <strong id="dayShiftOutput">--</strong>
+              </div>
+              <div class="metric">
+                <span>Source Snapshot</span>
+                <strong id="sourceOutput">--</strong>
+              </div>
+            </div>
+          </article>
+
+          <div class="panel-title" style="margin-top:22px">
+            <div>
+              <h3>Meeting Planner</h3>
+              <div class="subtle">Quick windows for common collaboration blocks.</div>
+            </div>
+          </div>
+          <div class="meeting-grid" id="meetingGrid"></div>
+          <div class="microcopy" id="shareLine">Share line will appear here after conversion.</div>
+        </div>
+      </div>
+
+      <aside class="panel">
+        <div class="panel-inner">
+          <div class="panel-title">
+            <div>
+              <h2>Live Clock Array</h2>
+              <div class="subtle">Pinned cities update every second.</div>
+            </div>
+          </div>
+          <div class="clock-list" id="clockList"></div>
+
+          <div class="panel-title" style="margin-top:22px">
+            <div>
+              <h3>Quick Presets</h3>
+              <div class="subtle">Load common routes in one click.</div>
+            </div>
+          </div>
+          <div class="presets" id="presetList"></div>
+        </div>
+      </aside>
+    </section>
+
+    <footer class="footer">
+      <div>
+        <h3>Contact</h3>
+        <p>Email: <a href="mailto:tranthienthanh93@gmail.com">tranthienthanh93@gmail.com</a></p>
+        <p>Web: <a href="https://carrotstore.web.app" target="_blank" rel="noopener">carrotstore.web.app</a></p>
+        <p>Phone: <a href="tel:+84978651577">+84978651577</a></p>
+        <p>Tiktok: <a href="https://www.tiktok.com/@kurotsmilethanh" target="_blank" rel="noopener">@kurotsmilethanh</a></p>
+      </div>
+      <div>
+        <h3>Donation</h3>
+        <p>PayPal: <a href="https://www.paypal.com/paypalme/kurotsmile" target="_blank" rel="noopener">paypal.me/kurotsmile</a></p>
+        <p>Ko-fi: <a href="https://ko-fi.com/T6T210E258" target="_blank" rel="noopener">ko-fi.com/T6T210E258</a></p>
+        <p><span class="accent">TimeFlip</span> now includes neon UI, quick presets, live clocks, share text, and meeting slots.</p>
+      </div>
+    </footer>
+  </main>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <script>
+    const fallbackZones = [
+      "UTC",
+      "Asia/Ho_Chi_Minh",
+      "America/New_York",
+      "Europe/London",
+      "Asia/Tokyo",
+      "America/Los_Angeles",
+      "Europe/Berlin",
+      "Australia/Sydney",
+      "Asia/Dubai"
+    ];
+
+    function isValidTimeZone(zone) {
+      try {
+        new Intl.DateTimeFormat("en-US", { timeZone: zone }).format(new Date());
+        return true;
+      } catch (error) {
+        return false;
+      }
+    }
+
+    const tzs = Array.from(new Set([
+      ...fallbackZones,
+      ...(Intl.supportedValuesOf ? Intl.supportedValuesOf("timeZone") : [])
+    ])).filter(isValidTimeZone);
+
+    const presets = [
+      { label: "Saigon -> New York", from: "Asia/Ho_Chi_Minh", to: "America/New_York" },
+      { label: "London -> Tokyo", from: "Europe/London", to: "Asia/Tokyo" },
+      { label: "Los Angeles -> Berlin", from: "America/Los_Angeles", to: "Europe/Berlin" },
+      { label: "Sydney -> Dubai", from: "Australia/Sydney", to: "Asia/Dubai" }
+    ].filter(preset => isValidTimeZone(preset.from) && isValidTimeZone(preset.to));
+
+    const liveCities = [
+      { name: "Local", zone: Intl.DateTimeFormat().resolvedOptions().timeZone },
+      { name: "UTC", zone: "UTC" },
+      { name: "New York", zone: "America/New_York" },
+      { name: "London", zone: "Europe/London" },
+      { name: "Saigon", zone: "Asia/Ho_Chi_Minh" },
+      { name: "Tokyo", zone: "Asia/Tokyo" }
+    ].filter(city => isValidTimeZone(city.zone));
+
+    const meetingHours = [9, 13, 18];
+    const els = {
+      dt: document.getElementById("dt"),
+      meetingDate: document.getElementById("meetingDate"),
+      from: document.getElementById("fromTz"),
+      to: document.getElementById("toTz"),
+      primaryResult: document.getElementById("primaryResult"),
+      secondaryResult: document.getElementById("secondaryResult"),
+      differenceOutput: document.getElementById("differenceOutput"),
+      dayShiftOutput: document.getElementById("dayShiftOutput"),
+      sourceOutput: document.getElementById("sourceOutput"),
+      statusText: document.getElementById("statusText"),
+      meetingGrid: document.getElementById("meetingGrid"),
+      clockList: document.getElementById("clockList"),
+      presetList: document.getElementById("presetList"),
+      shareLine: document.getElementById("shareLine"),
+      heroLocalZone: document.getElementById("heroLocalZone"),
+      heroLocalOffset: document.getElementById("heroLocalOffset"),
+      heroZoneCount: document.getElementById("heroZoneCount"),
+      heroDelta: document.getElementById("heroDelta"),
+      toast: document.getElementById("toast")
+    };
+
+    function toDatetimeLocalValue(date) {
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 16);
+    }
+
+    function toDateValue(date) {
+      const local = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+      return local.toISOString().slice(0, 10);
+    }
+
+    function formatInZone(date, timeZone, options) {
+      const safeZone = isValidTimeZone(timeZone) ? timeZone : "UTC";
+      return new Intl.DateTimeFormat("en-US", { timeZone: safeZone, ...options }).format(date);
+    }
+
+    function formatParts(date, timeZone, options) {
+      const safeZone = isValidTimeZone(timeZone) ? timeZone : "UTC";
+      return new Intl.DateTimeFormat("en-US", { timeZone: safeZone, ...options }).formatToParts(date);
+    }
+
+    function offsetMinutes(date, timeZone) {
+      const parts = formatParts(date, timeZone, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23"
+      });
+      const map = Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
+      const asUtc = Date.UTC(
+        Number(map.year),
+        Number(map.month) - 1,
+        Number(map.day),
+        Number(map.hour),
+        Number(map.minute),
+        Number(map.second)
+      );
+      return Math.round((asUtc - date.getTime()) / 60000);
+    }
+
+    function offsetLabel(minutes) {
+      const sign = minutes >= 0 ? "+" : "-";
+      const absolute = Math.abs(minutes);
+      const hours = String(Math.floor(absolute / 60)).padStart(2, "0");
+      const mins = String(absolute % 60).padStart(2, "0");
+      return `UTC${sign}${hours}:${mins}`;
+    }
+
+    function zoneLabel(zone) {
+      return (zone || "UTC").replaceAll("_", " ");
+    }
+
+    function normalizeZone(zone) {
+      if (zone && isValidTimeZone(zone)) return zone;
+      return "UTC";
+    }
+
+    function parseDateTimeInput(value) {
+      const [datePart, timePart] = value.split("T");
+      const [year, month, day] = datePart.split("-").map(Number);
+      const [hour, minute] = timePart.split(":").map(Number);
+      return { year, month, day, hour, minute };
+    }
+
+    function toUtcFromZone(inputValue, timeZone) {
+      const target = parseDateTimeInput(inputValue);
+      const targetUtc = Date.UTC(target.year, target.month - 1, target.day, target.hour, target.minute, 0);
+      let guess = targetUtc;
+
+      for (let i = 0; i < 5; i += 1) {
+        const parts = formatParts(new Date(guess), timeZone, {
+          year: "numeric",
+          month: "2-digit",
+          day: "2-digit",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hourCycle: "h23"
+        });
+        const map = Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
+        const zonedUtc = Date.UTC(
+          Number(map.year),
+          Number(map.month) - 1,
+          Number(map.day),
+          Number(map.hour),
+          Number(map.minute),
+          Number(map.second)
+        );
+        const diff = targetUtc - zonedUtc;
+        guess += diff;
+        if (diff === 0) break;
+      }
+
+      return new Date(guess);
+    }
+
+    function getZonedDateKey(date, timeZone) {
+      const parts = formatParts(date, timeZone, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hourCycle: "h23"
+      });
+      const map = Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
+      return `${map.year}-${map.month}-${map.day} ${map.hour}:${map.minute}`;
+    }
+
+    function getZoneDateKey(date, timeZone) {
+      const parts = formatParts(date, timeZone, {
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit"
+      });
+      const map = Object.fromEntries(parts.filter(part => part.type !== "literal").map(part => [part.type, part.value]));
+      return `${map.year}-${map.month}-${map.day}`;
+    }
+
+    function dayShiftText(date, fromZone, toZone) {
+      const fromDate = getZoneDateKey(date, fromZone);
+      const toDate = getZoneDateKey(date, toZone);
+      if (fromDate === toDate) return "Same calendar day";
+      const fromStamp = new Date(`${fromDate}T00:00:00`);
+      const toStamp = new Date(`${toDate}T00:00:00`);
+      const delta = Math.round((toStamp - fromStamp) / 86400000);
+      return delta > 0 ? `${delta} day ahead` : `${Math.abs(delta)} day behind`;
+    }
+
+    function showToast(message) {
+      els.toast.textContent = message;
+      els.toast.classList.add("show");
+      clearTimeout(showToast.timer);
+      showToast.timer = setTimeout(() => els.toast.classList.remove("show"), 1800);
+    }
+
+    function populateSelectors() {
+      const options = tzs.map(zone => `<option value="${zone}">${zoneLabel(zone)}</option>`).join("");
+      els.from.innerHTML = options;
+      els.to.innerHTML = options;
+      const localZone = normalizeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+      els.from.value = tzs.includes(localZone) ? localZone : "UTC";
+      els.to.value = tzs.includes("UTC") ? "UTC" : tzs[0];
+    }
+
+    function renderPresets() {
+      els.presetList.innerHTML = presets.map((preset, index) => `
+        <button class="preset-btn" type="button" data-preset="${index}">
+          <b>${preset.label}</b>
+          <span>${preset.from} -> ${preset.to}</span>
+        </button>
+      `).join("");
+      els.presetList.querySelectorAll("[data-preset]").forEach(button => {
+        button.addEventListener("click", () => {
+          const preset = presets[Number(button.dataset.preset)];
+          els.from.value = normalizeZone(preset.from);
+          els.to.value = normalizeZone(preset.to);
+          convert();
+        });
+      });
+    }
+
+    function renderClocks() {
+      const now = new Date();
+      els.clockList.innerHTML = liveCities.map(city => {
+        const time = formatInZone(now, city.zone, {
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          second: "2-digit",
+          hourCycle: "h23"
+        });
+        const date = formatInZone(now, city.zone, {
+          month: "short",
+          day: "2-digit",
+          timeZoneName: "short"
+        });
+        return `
+          <div class="clock-card">
+            <div>
+              <span>${city.name}</span>
+              <strong>${zoneLabel(city.zone)}</strong>
+            </div>
+            <div class="clock-time">${time}<br>${date}</div>
+          </div>
+        `;
+      }).join("");
+    }
+
+    function buildMeetingSlots(baseDate, fromZone, toZone) {
+      const dateValue = els.meetingDate.value || toDateValue(baseDate);
+      const [year, month, day] = dateValue.split("-").map(Number);
+      const slots = meetingHours.map(hour => {
+        const slotInput = `${dateValue}T${String(hour).padStart(2, "0")}:00`;
+        const slotDate = toUtcFromZone(slotInput, fromZone);
+        const fromText = formatInZone(slotDate, fromZone, {
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23",
+          timeZoneName: "short"
+        });
+        const toText = formatInZone(slotDate, toZone, {
+          weekday: "short",
+          hour: "2-digit",
+          minute: "2-digit",
+          hourCycle: "h23",
+          timeZoneName: "short"
+        });
+        return `
+          <article class="meeting-slot">
+            <span>Source ${String(hour).padStart(2, "0")}:00</span>
+            <strong>${zoneLabel(fromZone)}</strong>
+            <small>${fromText}</small>
+            <small>${toText}</small>
+          </article>
+        `;
+      }).join("");
+      els.meetingGrid.innerHTML = slots;
+    }
+
+    function updateHero(date, fromZone, toZone) {
+      const localZone = normalizeZone(Intl.DateTimeFormat().resolvedOptions().timeZone);
+      const localOffset = offsetMinutes(date, localZone);
+      const delta = offsetMinutes(date, toZone) - offsetMinutes(date, fromZone);
+      els.heroLocalZone.textContent = zoneLabel(localZone);
+      els.heroLocalOffset.textContent = offsetLabel(localOffset);
+      els.heroZoneCount.textContent = `${tzs.length} zones`;
+      els.heroDelta.textContent = `${delta >= 0 ? "+" : ""}${(delta / 60).toFixed(1)}h`;
+    }
+
+    function convert() {
+      const input = els.dt.value;
+      if (!input) {
+        return;
+      }
+      const fromZone = normalizeZone(els.from.value);
+      const toZone = normalizeZone(els.to.value);
+      els.from.value = fromZone;
+      els.to.value = toZone;
+      const sourceDate = toUtcFromZone(input, fromZone);
+      const converted = formatInZone(sourceDate, toZone, {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23",
+        timeZoneName: "short"
+      });
+      const sourcePretty = formatInZone(sourceDate, fromZone, {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        hourCycle: "h23",
+        timeZoneName: "short"
+      });
+      const toOffset = offsetMinutes(sourceDate, toZone);
+      const fromOffset = offsetMinutes(sourceDate, fromZone);
+      const diffMins = toOffset - fromOffset;
+      const diffHours = `${diffMins >= 0 ? "+" : "-"}${Math.floor(Math.abs(diffMins) / 60)}h ${String(Math.abs(diffMins) % 60).padStart(2, "0")}m`;
+
+      els.primaryResult.textContent = getZonedDateKey(sourceDate, toZone);
+      els.secondaryResult.innerHTML = `
+        <div><strong>Target:</strong> ${converted}</div>
+        <div><strong>Route:</strong> ${zoneLabel(fromZone)} -> ${zoneLabel(toZone)}</div>
+        <div><strong>Offsets:</strong> ${offsetLabel(fromOffset)} -> ${offsetLabel(toOffset)}</div>
+      `;
+      els.differenceOutput.textContent = diffHours;
+      els.dayShiftOutput.textContent = dayShiftText(sourceDate, fromZone, toZone);
+      els.sourceOutput.textContent = sourcePretty;
+      els.statusText.textContent = `${zoneLabel(fromZone)} synced to ${zoneLabel(toZone)}`;
+      els.shareLine.textContent = `Share: ${sourcePretty} in ${zoneLabel(fromZone)} equals ${converted} in ${zoneLabel(toZone)}.`;
+
+      buildMeetingSlots(sourceDate, fromZone, toZone);
+      updateHero(sourceDate, fromZone, toZone);
+      renderClocks();
+    }
+
+    async function copyResult() {
+      const text = els.shareLine.textContent;
+      if (!text || text.includes("will appear here")) {
+        showToast("Convert time first");
+        return;
+      }
+      try {
+        await navigator.clipboard.writeText(text);
+        showToast("Result copied");
+      } catch (error) {
+        showToast("Clipboard blocked");
+      }
+    }
+
+    function swapZones() {
+      const current = els.from.value;
+      els.from.value = els.to.value;
+      els.to.value = current;
+      convert();
+    }
+
+    function setNow() {
+      const now = new Date();
+      els.dt.value = toDatetimeLocalValue(now);
+      els.meetingDate.value = toDateValue(now);
+      convert();
+    }
+
+    populateSelectors();
+    renderPresets();
+    setNow();
+    renderClocks();
+
+    document.getElementById("conv").addEventListener("click", convert);
+    document.getElementById("copyBtn").addEventListener("click", copyResult);
+    document.getElementById("swapBtn").addEventListener("click", swapZones);
+    document.getElementById("nowBtn").addEventListener("click", setNow);
+    [els.dt, els.meetingDate, els.from, els.to].forEach(el => el.addEventListener("change", convert));
+    setInterval(renderClocks, 1000);
+  </script>
+</body>
+</html>
